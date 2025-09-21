@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Port Ship Movement Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #0b3d91;
+      margin-bottom: 20px;
+    }
+
+    section {
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    h2 {
+      border-bottom: 3px solid #0b3d91;
+      padding-bottom: 6px;
+      color: #0b3d91;
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #0b3d91;
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8faff;
+    }
+
+    .status-Aguardando {
+      color: #d97706; /* orange */
+      font-weight: 600;
+    }
+
+    .status-Saindo {
+      color: #047857; /* green */
+      font-weight: 600;
+    }
+
+    .status-Cancelado {
+      color: #b91c1c; /* red */
+      font-weight: 600;
+      text-decoration: line-through;
+    }
+
+    .ship-details {
+      max-width: 1000px;
+      margin: 0 auto 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      font-size: 15px;
+      line-height: 1.5;
+      color: #0b3d91;
+    }
+
+    .label {
+      font-weight: 600;
+      margin-right: 5px;
+    }
+
+    .solution {
+      background: #e3f2fd;
+      padding: 12px;
+      border-radius: 5px;
+      margin-top: 12px;
+      font-style: italic;
+      color: #0b3d91;
+    }
+  </style>
+</head>
+<body>
+  <h1>Port Ship Movement Dashboard</h1>
+
+  <section class="ship-details" aria-label="Details of the rebocador operation and delays">
+    <h2>Ship Movement Detail - MSC-DELAY-006 (Rebocador Maré Alta)</h2>
+    <p><span class="label">Common Ship ID:</span> MSC-DELAY-006</p>
+    <p><span class="label">Tugboat ID:</span> NAV123461</p>
+    <p><span class="label">Tugboat Name:</span> Rebocador Maré Alta</p>
+    <p><span class="label">Movement Type:</span> Entrada (Entry)</p>
+    <p><span class="label">Requested Window:</span> 2025-09-05 07:30</p>
+    <p><span class="label">Tugboat Scheduled Time:</span> 06:45</p>
+    <p><span class="label">Tugboat Actual Time:</span> 06:45</p>
+    <p><span class="label">Tugboat Status:</span> Executado</p>
+    <p><span class="label">Piloting Status:</span> Pendente</p>
+    <p><span class="label">Mooring Status:</span> Aguardando</p>
+    <p><span class="label">Final Status:</span> Pendente</p>
+    <p><span class="label">Mooring Location:</span> Berço 02</p>
+    <p><span class="label">Responsible Team:</span> Equipe Amarração C</p>
+    <p><span class="label">General Observations:</span> Praticagem pendente por névoa densa, aguardando nova janela. Rebocador executado conforme previsto às 06:45. Amarração aguardando liberação do Berço 02, com previsão atrasada. Há desalinhamento de janelas e a manobra ainda não foi iniciada.</p>
+    <div class="solution">
+      <strong>Proposed Solution:</strong> Replanejar a janela com a praticagem após melhora de visibilidade, alinhando com a liberação do Berço 02. Reprogramar a chamada dos rebocadores para a nova ETA/ETB e manter comunicação contínua entre praticagem, rebocadores e amarração. Monitorar condições meteorológicas em tempo real e emitir atualização aos stakeholders.
+    </div>
+  </section>
+
+  <section aria-label="Summary table of port ship statuses">
+    <h2>Port Ship Movements Summary</h2>
+    <table role="table">
+      <thead>
+        <tr>
+          <th>Ship ID</th>
+          <th>Terminal</th>
+          <th>Operation</th>
+          <th>Planned Berth Date/Time</th>
+          <th>Actual Berth Date/Time</th>
+          <th>ETA</th>
+          <th>ETB</th>
+          <th>Current Status</th>
+        </tr>
+      </thead>
+      <tbody id="ships-table-body">
+        <!-- Rows will be populated by JS -->
+      </tbody>
+    </table>
+  </section>
+
+  <script>
+    const shipsData = [
+      {
+        "identificadorNavio": "MSC-SANTOS-001",
+        "nomeTerminal": "Tecon Santos",
+        "tipoOperacao": "descarga",
+        "dataPrevistaAtracacao": "2025-09-01T08:00:00",
+        "dataRealAtracacao": "2025-09-01T08:10:00",
+        "dataPrevisaoChegada": "2025-09-01T08:00:00",
+        "dataPrevisaoSaida": "2025-09-03T22:00:00",
+        "Situação Atual": "Saindo"
+      },
+      {
+        "identificadorNavio": "MAERSK-VITORIA-002",
+        "nomeTerminal": "Brasil Terminal Portuário",
+        "tipoOperacao": "carga",
+        "dataPrevistaAtracacao": "2025-09-01T09:00:00",
+        "dataRealAtracacao": "2025-09-01T09:05:00",
+        "dataPrevisaoChegada": "2025-09-01T12:00:00",
+        "dataPrevisaoSaida": "2025-09-04T01:00:00",
+        "Situação Atual": "Saindo"
+      },
+      {
+        "identificadorNavio": "COSCO-BR-003",
+        "nomeTerminal": "Ecoporto Santos",
+        "tipoOperacao": "descarga",
+        "dataPrevistaAtracacao": "2025-09-01T10:00:00",
+        "dataRealAtracacao": "2025-09-01T10:00:00",
+        "dataPrevisaoChegada": "2025-09-02T15:00:00",
+        "dataPrevisaoSaida": "2025-09-05T10:00:00",
+        "Situação Atual": "Saindo"
+      },
+      {
+        "identificadorNavio": "LOG-IN-RIO-004",
+        "nomeTerminal": "Tecon Santos",
+        "tipoOperacao": "embarque",
+        "dataPrevistaAtracacao": "2025-09-01T11:30:00",
+        "dataRealAtracacao": "2025-09-01T11:40:00",
+        "dataPrevisaoChegada": "2025-09-02T18:00:00",
+        "dataPrevisaoSaida": "2025-09-03T18:00:00",
+        "Situação Atual": "Saindo"
+      },
+      {
+        "identificadorNavio": "HAMBURG-SANTOS-005",
+        "nomeTerminal": "Brasil Terminal Portuário",
+        "tipoOperacao": "descarga",
+        "dataPrevistaAtracacao": "2025-09-01T12:30:00",
+        "dataRealAtracacao": "2025-09-01T12:35:00",
+        "dataPrevisaoChegada": "2025-09-03T09:00:00",
+        "dataPrevisaoSaida": "2025-09-06T03:00:00",
+        "Situação Atual": "Saindo"
+      },
+      {
+        "identificadorNavio": "MSC-DELAY-006",
+        "nomeTerminal": "Ecoporto Santos",
+        "tipoOperacao": "descarga",
+        "dataPrevistaAtracacao": "2025-09-01T13:00:00",
+        "dataRealAtracacao": "—",
+        "dataPrevisaoChegada": "2025-09-01T14:00:00",
+        "dataPrevisaoSaida": "2025-09-04T20:00:00",
+        "Situação Atual": "Aguardando"
+      },
+      {
+        "identificadorNavio": "MAERSK-CANCEL-007",
+        "nomeTerminal": "Tecon Santos",
+        "tipoOperacao": "embarque",
+        "dataPrevistaAtracacao": "2025-09-01T14:00:00",
+        "dataRealAtracacao": "—",
+        "dataPrevisaoChegada": null,
+        "dataPrevisaoSaida": null,
+        "Situação Atual": "Cancelado"
+      },
+      {
+        "identificadorNavio": "COSCO-AGUARDANDO-008",
+        "nomeTerminal": "Brasil Terminal Portuário",
+        "tipoOperacao": "descarga",
+        "dataPrevistaAtracacao": "2025-09-01T15:00:00",
+        "dataRealAtracacao": "—",
+        "dataPrevisaoChegada": "2025-09-03T17:00:00",
+        "dataPrevisaoSaida": "2025-09-06T12:00:00",
+        "Situação Atual": "Aguardando"
+      },
+      {
+        "identificadorNavio": "LOG-IN-RETARDO-009",
+        "nomeTerminal": "Ecoporto Santos",
+        "tipoOperacao": "carga",
+        "dataPrevistaAtracacao": "2025-09-01T16:00:00",
+        "dataRealAtracacao": "2025-09-01T17:30:00",
+        "dataPrevisaoChegada": "2025-09-02T20:00:00",
+        "dataPrevisaoSaida": "2025-09-03T23:00:00",
+        "Situação Atual": "Saindo"
+      },
+      {
+        "identificadorNavio": "HAMBURG-EMERGENCIA-010",
+        "nomeTerminal": "Tecon Santos",
+        "tipoOperacao": "embarque",
+        "dataPrevistaAtracacao": "2025-09-01T18:00:00",
+        "dataRealAtracacao": "2025-09-01T18:05:00",
+        "dataPrevisaoChegada": "2025-09-04T06:00:00",
+        "dataPrevisaoSaida": "2025-09-07T08:00:00",
+        "Situação Atual": "Aguardando"
+      }
+    ];
+
+    // Format ISO datetime as "YYYY-MM-DD HH:mm" or "—"
+    function formatDateTime(isoString) {
+      if (!isoString || isoString === '—') return '—';
+      const dt = new Date(isoString);
+      if (isNaN(dt.getTime())) return '—';
+      const y = dt.getFullYear();
+      const m = ('0' + (dt.getMonth() + 1)).slice(-2);
+      const d = ('0' + dt.getDate()).slice(-2);
+      const hh = ('0' + dt.getHours()).slice(-2);
+      const mm = ('0' + dt.getMinutes()).slice(-2);
+      return `${y}-${m}-${d} ${hh}:${mm}`;
+    }
+
+    const tbody = document.getElementById('ships-table-body');
+
+    shipsData.forEach(ship => {
+      const tr = document.createElement('tr');
+      
+      // Map status to CSS class for color
+      let statusClass = '';
+      if(ship["Situação Atual"]){
+        const st = ship["Situação Atual"].toLowerCase();
+        if(st.includes('aguardando')) statusClass = 'status-Aguardando';
+        else if(st.includes('saindo')) statusClass = 'status-Saindo';
+        else if(st.includes('cancelado')) statusClass = 'status-Cancelado';
+      }
+
+      tr.innerHTML = `
+        <td>${ship.identificadorNavio || '—'}</td>
+        <td>${ship.nomeTerminal || '—'}</td>
+        <td>${ship.tipoOperacao || '—'}</td>
+        <td>${formatDateTime(ship.dataPrevistaAtracacao)}</td>
+        <td>${formatDateTime(ship.dataRealAtracacao)}</td>
+        <td>${formatDateTime(ship.dataPrevisaoChegada)}</td>
+        <td>${formatDateTime(ship.dataPrevisaoSaida)}</td>
+        <td class="${statusClass}">${ship["Situação Atual"] || '—'}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  </script>
+</body>
+</html>
