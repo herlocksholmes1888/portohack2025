@@ -1,0 +1,344 @@
+{
+  "name": "Cybernautica",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1456,
+        1088
+      ],
+      "id": "4d31dac3-73dc-45f2-94b2-ba01188b188f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Busca informações relativas aos Rebocadores. Use a rota https://api.hackathon.souamigu.org.br/rebocadores/{id}",
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -496,
+        1504
+      ],
+      "id": "2d5c048f-b494-4fd3-b7dc-22df437f2471",
+      "name": "Rebocador"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Busca informações relativas à Praticagem. Use a rota https://api.hackathon.souamigu.org.br/praticagem/{id}",
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        1520
+      ],
+      "id": "bb5c43d6-50fc-4b77-8b49-25e3e0d3f514",
+      "name": "Praticagem"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Busca informações relativas aos Amarradores. Use a rota https://api.hackathon.souamigu.org.br/amarracao/{id}",
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        144,
+        1520
+      ],
+      "id": "59ecbd84-2b95-449e-84fa-c5c0aace6c2c",
+      "name": "Amarração"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Busca informações relativas dos Terminais Portuários",
+        "url": "=https://api.hackathon.souamigu.org.br/terminal-portuario",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        288,
+        1520
+      ],
+      "id": "11eed3de-82bb-4ce7-b12e-0806d81ead4d",
+      "name": "Terminal"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Busca informações relativas dos Armadores (Navios)",
+        "url": "=https://api.hackathon.souamigu.org.br/armador",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        1504
+      ],
+      "id": "2928602e-2a32-4df3-bf25-64edea0997b4",
+      "name": "Armador"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5",
+          "mode": "list",
+          "cachedResultName": "gpt-5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -64,
+        1536
+      ],
+      "id": "ba0764cc-a567-40c8-9f62-87a5840ddaa2",
+      "name": "Chamar OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "eQsvhx4LtHndxuQ4",
+          "name": "CyberNautica"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = [];\n\nfor (let i = 1; i <= 10; i++) {\n  items.push({\n    json: {\n      numero: i\n    }\n  });\n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1136,
+        1088
+      ],
+      "id": "32dbeda4-a4d6-461d-8939-7b9ddda6625d",
+      "name": "IDs a serem percorridos"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -784,
+        1088
+      ],
+      "id": "055aa1f3-57bb-4112-b068-a114e8bf5466",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um assistente de dados portuários. Consulte as informações de Terminal e Armador quanto a chegada e saída (previstas e reais), operação e status. Passe pelo ID {{ $('Loop Over Items').item.json.numero }}\nOrganize os dados em formato json:\n\nidentificadorNavio\nnomeTerminal\ntipoOperacao (carga, descarga, embarque)\ndataPrevistaAtracacao\ndataRealAtracacao\ndataPrevisaoChegada\ndataPrevisaoSaida\nSituação Atual (entrando, saindo, aguardando, operando, cancelado)\n\nPreencha “—” caso não haja informação real disponível.\nUse \"Situação Atual\" para indicar a condição dinâmica do navio:\n\nEntrando → previsto para chegar, mas ainda não atracado.\nOperando → atracado e em operação.\nSaindo → finalizou operação e em manobra de saída.\nAguardando → há pendência (barra, documentos, rebocador).\nCancelado → operação cancelada.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        1184
+      ],
+      "id": "6f27115c-c182-41d4-b459-6815f35bd658",
+      "name": "Agente de Checagem"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Busque informações sobre a situação de uma operação de manobra do ponto de vista da Praticagem, dos Rebocadores e da Amarração (Use o ID {{ $json.numero }} para consulta) e responda usando o formato JSON, preenchendo da seguinte forma:\n\n{\nidentificadorNavio {\n\tcomum (chave comum em praticagem e amarrador)\n\trebocador (identificadorNavio do rebocador)\n}\nnomeRebocador (nome do rebocador)\ntipoMovimentacao (entrada/saída, da praticagem ou amarração)\njanelaSolicitada (dataSolicitacao a Praticagem)\nhoraPrevistaRebocador (horaPrevista da Rebocagem)\nhoraRealRebocador (horaReal da Rebocagem)\nstatusRebocador (status da Rebocagem)\nstatusPraticagem (status da Praticagem)\nstatusAmarracao (statusOperacao da Amarração)\nstatusFinal (\n    baseando-se em:\n\nSe qualquer status = cancelado → cancelado\nSe todos concluídos → realizada\nSe algum pendente → pendente\nSe houve atraso/intercorrência → realizada com atraso\n)\n\nlocalAmarracao (da Amarração)\nequipeResponsavel (da Amarração)\nobservacoesGerais (utilize as informações da consulta para gerar uma interpretação da situação atual do procedimento de manobra)\n\nSolução (baseado nas observações gerais, proponha uma solução para o problema)\n}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -192,
+        1104
+      ],
+      "id": "8c4769d2-9f96-4620-b065-eee4b91300de",
+      "name": "Agente Analista e Estruturador"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -192,
+        896
+      ],
+      "id": "0ef7dc28-1fae-4d88-8479-c75603445275",
+      "name": "Convert to File"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "IDs a serem percorridos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rebocador": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Analista e Estruturador",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Praticagem": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Analista e Estruturador",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Agente de Checagem",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Amarração": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Analista e Estruturador",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Agente de Checagem",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Terminal": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente de Checagem",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armador": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente de Checagem",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chamar OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Analista e Estruturador",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Agente de Checagem",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IDs a serem percorridos": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agente Analista e Estruturador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente de Checagem": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Analista e Estruturador": {
+      "main": [
+        [
+          {
+            "node": "Agente de Checagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f6ba1cff-8559-4cca-8ef6-7989191da62e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "21b80bbe30a7f15da69548d8c5b1a235d4d21f49c50c6d7cd7bab88b61c1e138"
+  },
+  "id": "lCKvWaQinKGgkMUc",
+  "tags": []
+}
